@@ -78,7 +78,7 @@ export function Dashboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900">IPCS Dashboard</h1>
+          <h1 className="text-4xl font-bold text-slate-900">IPCS Dashboard — Cowork Test</h1>
           <p className="text-slate-600 mt-2">
             Welcome back, {currentUser?.name} · Last updated Apr 7, 11:30 AM
           </p>
