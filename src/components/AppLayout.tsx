@@ -1,0 +1,252 @@
+import React, { useState } from 'react';
+import { useLocation, Link } from 'wouter';
+import {
+  ChevronLeft,
+  ChevronRight,
+  LogOut,
+  Menu,
+} from 'lucide-react';
+import type { Stage } from '@/data/types';
+import { useAppStore } from '@/store/useAppStore';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+
+export function AppLayout({ children }: { children: React.ReactNode }) {
+  const [sidebarExpanded, setSidebarExpanded] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [location, navigate] = useLocation();
+  const { currentUser, stages, logout } = useAppStore();
+
+  const handleStageClick = (stageId: string) => {
+    if (stageId === 'stage0') {
+      navigate(`/stage/${stageId}`);
+      setMobileMenuOpen(false);
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
+  const getStageTruncatedSubtitle = (subtitle: string | undefined): string => {
+    if (!subtitle) return '';
+    if (subtitle.length > 30) {
+      return subtitle.substring(0, 27) + '...';
+    }
+    return subtitle;
+  };
+
+  const getOverallProgressPercent = (): number => {
+    if (stages.length === 0) return 0;
+    const totalCompletion = stages.reduce((sum: number, stage: Stage) => {
+      return sum + stage.completionPercent;
+    }, 0);
+    return Math.round(totalCompletion / stages.length);
+  };
+
+  // Sidebar content
+  const SidebarContent = () => (
+    <>
+      {/* Brand Block */}
+      <div className="px-4 py-6">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex-1">
+            <p className="font-bold text-base text-slate-900">IPCS Tracker</p>
+            {sidebarExpanded && (
+              <p className="text-xs text-slate-600 mt-1">Tracer</p>
+            )}
+          </div>
+          {sidebarExpanded && (
+            <button
+              onClick={() => setSidebarExpanded(false)}
+              className="p-1 hover:bg-slate-200 rounded transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      <Separator />
+
+      {/* Overall Progress */}
+      <div className="px-4 py-4">
+        <p className="text-xs font-semibold text-slate-600 mb-2">
+          Overall Progress
+        </p>
+        <Progress value={getOverallProgressPercent()} className="h-2 mb-1" />
+        <p className="text-xs text-slate-600">{getOverallProgressPercent()}%</p>
+      </div>
+
+      <Separator />
+
+      {/* Dashboard Link */}
+      <div className="px-2 py-2">
+        <Link href="/">
+          <button
+            onClick={() => setMobileMenuOpen(false)}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors text-left ${
+              location === '/'
+                ? 'bg-blue-600 text-white'
+                : 'text-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            {sidebarExpanded && <span className="text-sm font-medium">Dashboard</span>}
+          </button>
+        </Link>
+      </div>
+
+      <Separator />
+
+      {/* Stages Section */}
+      <div className="px-2 py-3">
+        {sidebarExpanded && (
+          <p className="text-xs font-bold text-slate-500 uppercase mb-2 px-2">
+            Stages
+          </p>
+        )}
+      </div>
+
+      {/* Stage List */}
+      <ScrollArea className="flex-1 px-2">
+        <div className="space-y-1">
+          {stages.map((stage: Stage) => (
+            <button
+              key={stage.id}
+              onClick={() => handleStageClick(stage.id)}
+              className={`w-full flex items-start gap-2 p-3 rounded-lg transition-colors text-left ${
+                stage.status === 'locked'
+                  ? 'cursor-not-allowed opacity-60 text-slate-400'
+                  : 'cursor-pointer hover:bg-slate-100 text-slate-700'
+              }`}
+              disabled={stage.status === 'locked'}
+            >
+              {/* Stage Number Badge */}
+              <div className="flex-shrink-0 w-6 h-6 bg-slate-900 text-white rounded-full flex items-center justify-center text-xs font-bold mt-0.5">
+                {stage.number}
+              </div>
+
+              {/* Stage Info */}
+              {sidebarExpanded && (
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">
+                    {stage.title}
+                  </p>
+                  <p className="text-xs text-slate-600 truncate">
+                    {getStageTruncatedSubtitle(stage.subtitle)}
+                  </p>
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+      </ScrollArea>
+
+      <Separator />
+
+      {/* User Profile Bottom */}
+      <div className="px-4 py-4 space-y-4">
+        {sidebarExpanded && currentUser && (
+          <div className="flex items-center gap-3">
+            {/* Avatar Circle */}
+            <div className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
+              {currentUser.name
+                .split(' ')
+                .map((n: string) => n[0])
+                .join('')}
+            </div>
+
+            {/* User Info */}
+            <div>
+              <p className="text-sm font-medium text-slate-900">
+                {currentUser.name}
+              </p>
+              <p className="text-xs text-slate-600">
+                {currentUser.role === 'plantManager' && 'Plant Manager'}
+                {currentUser.role === 'ceo' && 'CEO'}
+                {currentUser.role === 'cfo' && 'CFO'}
+                {currentUser.role === 'projectManager' && 'Project Manager'}
+                {currentUser.role === 'siteManager' && 'Site Manager'}
+                {currentUser.role === 'consultant' && 'Consultant'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Log Out Button */}
+        <Button
+          onClick={handleLogout}
+          variant="outline"
+          className="w-full justify-start gap-2"
+          size="sm"
+        >
+          <LogOut className="w-4 h-4" />
+          {sidebarExpanded && <span>Log out</span>}
+        </Button>
+      </div>
+    </>
+  );
+
+  return (
+    <div className="flex h-screen bg-white">
+      {/* Desktop Sidebar */}
+      <div
+        className={`hidden md:flex flex-col bg-white border-r border-slate-200 transition-all duration-300 ${
+          sidebarExpanded ? 'w-[280px]' : 'w-[64px]'
+        }`}
+      >
+        <SidebarContent />
+      </div>
+
+      {/* Mobile Sidebar */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-40 md:hidden bg-black/50"
+          onClick={() => setMobileMenuOpen(false)}
+        >
+          <div
+            className="absolute left-0 top-0 h-full w-[280px] bg-white border-r border-slate-200 flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <SidebarContent />
+          </div>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Bar */}
+        <div className="h-16 border-b border-slate-200 flex items-center px-4 gap-4 bg-white">
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+
+          {/* Desktop Sidebar Toggle */}
+          {!sidebarExpanded && (
+            <button
+              className="hidden md:flex p-2 hover:bg-slate-100 rounded-lg transition-colors"
+              onClick={() => setSidebarExpanded(!sidebarExpanded)}
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          )}
+
+          {/* Spacer */}
+          <div className="flex-1" />
+        </div>
+
+        {/* Content Area */}
+        <div className="flex-1 overflow-auto">
+          <div>{children}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
