@@ -80,7 +80,7 @@ export function Dashboard() {
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-slate-900">IPCS Dashboard</h1>
           <p className="text-slate-600 mt-2">
-            Welcome back, {currentUser?.name} · Last updated Apr 7, 11:30 AM
+            Hello World, {currentUser?.name} · Last updated Apr 7, 11:30 AM
           </p>
         </div>
 
