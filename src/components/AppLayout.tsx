@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import type { Stage } from '@/data/types';
 import { useAppStore } from '@/store/useAppStore';
+import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -26,9 +27,62 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    // End the Supabase session first so AuthGate drops us back to the
+    // login screen. Clear the local store regardless, in case signOut
+    // fails (e.g. already expired or offline).
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[AppLayout] supabase signOut error', err);
+    }
     logout();
     navigate('/');
+  };
+
+  // Derive initials from whatever name we have (real user name, falling back
+  // to email localpart). Tolerant of missing or single-word names so no user
+  // ever sees a blank avatar bubble.
+  const initialsFor = (name: string | undefined | null): string => {
+    const safe = (name && name.trim()) || 'User';
+    const parts = safe.split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return 'U';
+    if (parts.length === 1) return parts[0][0].toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  };
+
+  // Translate a role string into a readable label. Covers the predefined
+  // enum values plus any free-form role (e.g. 'admin') an org may set in
+  // Supabase by capitalizing and spacing camelCase.
+  const roleLabelFor = (role: string | undefined | null): string => {
+    if (!role) return '';
+    switch (role) {
+      case 'plantManager':
+        return 'Plant Manager';
+      case 'ceo':
+        return 'CEO';
+      case 'cfo':
+        return 'CFO';
+      case 'projectManager':
+        return 'Project Manager';
+      case 'siteManager':
+        return 'Site Manager';
+      case 'consultant':
+        return 'Consultant';
+      case 'admin':
+        return 'Admin';
+      default:
+        // Split camelCase / snake_case / kebab-case and title-case.
+        return role
+          .replace(/[_-]+/g, ' ')
+          .replace(/([a-z])([A-Z])/g, '$1 $2')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .split(' ')
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+          .join(' ');
+    }
   };
 
   const getStageTruncatedSubtitle = (subtitle: string | undefined): string => {
@@ -168,24 +222,16 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-3">
             {/* Avatar Circle */}
             <div className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0">
-              {currentUser.name
-                .split(' ')
-                .map((n: string) => n[0])
-                .join('')}
+              {initialsFor(currentUser.name)}
             </div>
 
             {/* User Info */}
-            <div>
-              <p className="text-sm font-medium text-slate-900">
-                {currentUser.name}
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-slate-900 truncate">
+                {currentUser.name || 'User'}
               </p>
-              <p className="text-xs text-slate-600">
-                {currentUser.role === 'plantManager' && 'Plant Manager'}
-                {currentUser.role === 'ceo' && 'CEO'}
-                {currentUser.role === 'cfo' && 'CFO'}
-                {currentUser.role === 'projectManager' && 'Project Manager'}
-                {currentUser.role === 'siteManager' && 'Site Manager'}
-                {currentUser.role === 'consultant' && 'Consultant'}
+              <p className="text-xs text-slate-600 truncate">
+                {roleLabelFor(currentUser.role as unknown as string)}
               </p>
             </div>
           </div>

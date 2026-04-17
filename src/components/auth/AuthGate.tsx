@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { supabase, type UserProfile } from '@/lib/supabase';
 import { hydrateFromCloud, startCloudSync, stopCloudSync } from '@/lib/cloudSync';
+import { useAppStore } from '@/store/useAppStore';
 import { LoginScreen } from './LoginScreen';
 import { PendingApproval } from './PendingApproval';
 
@@ -21,6 +22,9 @@ export function AuthGate({ children }: AuthGateProps) {
   async function evaluateSession(session: Session | null) {
     if (!session?.user) {
       stopCloudSync();
+      // Clear any leftover user from the local store so the sidebar / dashboard
+      // never show a stale identity after a sign-out.
+      useAppStore.getState().logout();
       setStatus({ kind: 'signedOut' });
       return;
     }
@@ -39,6 +43,7 @@ export function AuthGate({ children }: AuthGateProps) {
 
     if (!profile || !profile.approved) {
       stopCloudSync();
+      useAppStore.getState().logout();
       setStatus({
         kind: 'pending',
         profile: (profile as UserProfile) ?? null,
@@ -46,6 +51,22 @@ export function AuthGate({ children }: AuthGateProps) {
       });
       return;
     }
+
+    // Approved — push the real user into the shared store so the sidebar,
+    // dashboard greeting, and any "facilitated by" fields reflect whoever
+    // is actually logged in, not a hard-coded demo user.
+    const displayName =
+      (profile.name && profile.name.trim().length > 0
+        ? profile.name
+        : session.user.email) ?? 'User';
+    useAppStore.getState().login({
+      id: profile.id,
+      name: displayName,
+      // The store's `role` field is a string — the UI handles both the
+      // predefined enum values (plantManager, ceo, ...) and any other
+      // value the admin may assign in Supabase (e.g. 'admin').
+      role: (profile.role || 'plantManager') as any,
+    });
 
     // Approved — hydrate shared data then start realtime sync
     await hydrateFromCloud();
