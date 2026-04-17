@@ -42,6 +42,7 @@ export const Stage0GuidedFlow: React.FC<Stage0GuidedFlowProps> = ({
   const addMaintenanceTag = useAppStore((s) => s.addMaintenanceTag);
   const updateMaintenanceTag = useAppStore((s) => s.updateMaintenanceTag);
   const addHuddleLog = useAppStore((s) => s.addHuddleLog);
+  const deleteHuddleLog = useAppStore((s) => s.deleteHuddleLog);
   const addRedTag = useAppStore((s) => s.addRedTag);
   const disposeRedTag = useAppStore((s) => s.disposeRedTag);
   const scoreFiveSZoneWeek = useAppStore((s) => s.scoreFiveSZoneWeek);
@@ -155,10 +156,17 @@ export const Stage0GuidedFlow: React.FC<Stage0GuidedFlowProps> = ({
     'Friday',
     'Saturday',
     'Sunday',
-    'Monday-Friday',
   ];
+  // Sort by the first day in the label — handles single days ("Monday") and
+  // ranges ("Tuesday-Thursday", "Monday-Friday") so a spanning label lands
+  // at its starting day rather than at the bottom.
+  const dayIndex = (label: string): number => {
+    const firstDay = label.split(/[-/–—]/)[0].trim();
+    const idx = dayOrder.indexOf(firstDay);
+    return idx === -1 ? dayOrder.length : idx;
+  };
   const sortedDays = Object.keys(activitiesByDay).sort(
-    (a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b)
+    (a, b) => dayIndex(a) - dayIndex(b)
   );
 
   const weekInfo = {
@@ -238,6 +246,7 @@ export const Stage0GuidedFlow: React.FC<Stage0GuidedFlowProps> = ({
             canEdit={canEdit}
             currentUserName={currentUser?.name || 'User'}
             onAdd={handleAddHuddleLog}
+            onDelete={(entryId) => deleteHuddleLog(stageId, entryId)}
           />
         );
       case 'redtag':
@@ -772,6 +781,7 @@ export const Stage0GuidedFlow: React.FC<Stage0GuidedFlowProps> = ({
                 canEdit={canEdit}
                 currentUserName={currentUser?.name || "User"}
                 onAdd={handleAddHuddleLog}
+                onDelete={(entryId) => deleteHuddleLog(stageId, entryId)}
               />
               <NextStepLink nextAnchor="section-maintenance" nextLabel="Log Maintenance Issues" />
             </div>

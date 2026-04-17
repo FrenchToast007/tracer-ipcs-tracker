@@ -51,21 +51,36 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const SidebarContent = () => (
     <>
       {/* Brand Block */}
-      <div className="px-4 py-6">
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex-1">
-            <p className="font-bold text-base text-slate-900">IPCS Tracker</p>
-            {sidebarExpanded && (
-              <p className="text-xs text-slate-600 mt-1">Tracer</p>
-            )}
-          </div>
-          {sidebarExpanded && (
-            <button
-              onClick={() => setSidebarExpanded(false)}
-              className="p-1 hover:bg-slate-200 rounded transition-colors"
+      <div className={sidebarExpanded ? 'px-4 py-6' : 'px-2 py-6'}>
+        <div
+          className={`flex items-center ${
+            sidebarExpanded ? 'justify-between gap-2' : 'justify-center'
+          }`}
+        >
+          {sidebarExpanded ? (
+            <>
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-base text-slate-900 truncate">
+                  IPCS Tracker
+                </p>
+                <p className="text-xs text-slate-600 mt-1">Tracer</p>
+              </div>
+              <button
+                onClick={() => setSidebarExpanded(false)}
+                className="p-1 hover:bg-slate-200 rounded transition-colors"
+                aria-label="Collapse sidebar"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            </>
+          ) : (
+            // Collapsed rail: show compact mark instead of wrapping full name
+            <div
+              className="w-10 h-10 rounded-lg bg-slate-900 text-white flex items-center justify-center font-bold text-sm"
+              title="IPCS Tracker"
             >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
+              IP
+            </div>
           )}
         </div>
       </div>

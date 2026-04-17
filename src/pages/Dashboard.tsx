@@ -50,21 +50,52 @@ export function Dashboard() {
       stages.length
   );
 
-  const getStatusBadge = (status: string) => {
-    if (status === 'locked') {
+  // A stage counts as "in progress" if any of its tools have real data on it,
+  // even when no day-by-day activity has been ticked yet. This keeps the
+  // dashboard badge honest when the team has started using huddles, red tags,
+  // 5S audits, etc. before checking off individual daily tasks.
+  const hasAnyStageActivity = (stage: ReturnType<typeof stages.find> | any): boolean => {
+    if (!stage) return false;
+    const doneActivities = stage.weeks.reduce(
+      (sum: number, w: any) =>
+        sum + w.activities.filter((a: any) => a.status === 'done').length,
+      0
+    );
+    if (doneActivities > 0) return true;
+    if ((stage.huddleLogs || []).length > 0) return true;
+    if ((stage.redTags || []).length > 0) return true;
+    if ((stage.maintenanceTags || []).length > 0) return true;
+    if ((stage.photos || []).length > 0) return true;
+    if ((stage.supplies || []).some((s: any) => s.ordered || s.acquired)) return true;
+    if ((stage.plantZones || []).some((z: any) => z.teamLead && z.teamLead.trim().length > 0)) return true;
+    if (
+      (stage.fiveSZones || []).some((z: any) =>
+        Object.values(z.weeklyScores || {}).some((v) => v !== undefined)
+      )
+    ) {
+      return true;
+    }
+    return false;
+  };
+
+  const getStatusBadge = (stage: any) => {
+    if (stage.status === 'locked') {
       return (
         <Badge variant="secondary" className="flex items-center gap-1">
           <Lock size={14} /> LOCKED
         </Badge>
       );
     }
-    if (status === 'active') {
-      return <Badge className="bg-slate-400">NOT STARTED</Badge>;
-    }
-    if (status === 'complete') {
+    if (stage.status === 'complete') {
       return <Badge className="bg-green-600">COMPLETE</Badge>;
     }
-    return <Badge>{status}</Badge>;
+    if (stage.status === 'active') {
+      if (hasAnyStageActivity(stage)) {
+        return <Badge className="bg-blue-600">IN PROGRESS</Badge>;
+      }
+      return <Badge className="bg-slate-400">NOT STARTED</Badge>;
+    }
+    return <Badge>{stage.status}</Badge>;
   };
 
   const handleStageClick = (stageId: string) => {
@@ -80,7 +111,7 @@ export function Dashboard() {
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-slate-900">IPCS Dashboard</h1>
           <p className="text-slate-600 mt-2">
-            Hello World, {currentUser?.name} · Last updated Apr 7, 11:30 AM
+            Welcome back, {currentUser?.name} · Live team view
           </p>
         </div>
 
@@ -167,7 +198,7 @@ export function Dashboard() {
                       <div className="flex-1">
                         {/* Status Badge */}
                         <div className="mb-2">
-                          {getStatusBadge(stage.status)}
+                          {getStatusBadge(stage)}
                         </div>
 
                         {/* Title */}

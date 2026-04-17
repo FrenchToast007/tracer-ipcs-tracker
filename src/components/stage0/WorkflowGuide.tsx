@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle2, Circle, ArrowRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, scrollToAnchorWithRetry } from '@/lib/utils';
 
 export interface WorkflowStep {
   number: number;
@@ -84,17 +84,6 @@ export const WORKFLOW_STEPS: Omit<WorkflowStep, 'completed'>[] = [
   },
 ];
 
-const scrollToAnchor = (anchor: string) => {
-  const el = document.getElementById(anchor);
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    el.classList.add('ring-4', 'ring-yellow-400');
-    setTimeout(() => {
-      el.classList.remove('ring-4', 'ring-yellow-400');
-    }, 2000);
-  }
-};
-
 export const WorkflowGuide: React.FC<WorkflowGuideProps> = ({ steps, onStepClick }) => {
   const completedCount = steps.filter((s) => s.completed).length;
   const nextStep = steps.find((s) => !s.completed);
@@ -102,11 +91,10 @@ export const WorkflowGuide: React.FC<WorkflowGuideProps> = ({ steps, onStepClick
   const handleClick = (step: WorkflowStep) => {
     if (onStepClick) {
       onStepClick(step);
-      // Give React a tick to render the new tab before scrolling
-      setTimeout(() => scrollToAnchor(step.anchor), 50);
-    } else {
-      scrollToAnchor(step.anchor);
     }
+    // scrollToAnchorWithRetry handles the case where the target section
+    // hasn't rendered yet (e.g. right after a tab switch).
+    scrollToAnchorWithRetry(step.anchor);
   };
 
   return (

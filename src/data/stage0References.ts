@@ -153,8 +153,6 @@ export const RECOMMENDATIONS: Record<string, RecRef> = {
       'One packet and one revision controls execution. The floor does not build from email trails, verbal confirmations, or mixed sources.',
       'The plant operates on a visible daily rhythm, not the latest loudest request. Priorities are reviewed in a defined cadence.',
       'Quality control is performed at the source and contained immediately. Defects are logged, root causes reviewed on a cadence, and corrections fed back into standards.',
-      '[Additional principles 5-6 from site — flow-focused]',
-      '[...]',
       'The daily huddle is a cross-cutting mechanism that evolves with the transformation — from a 10-minute safety standup in Stage 0 to a full production control standup in Stage 7.',
       'Site feedback is treated as operational input, not anecdote.',
     ],

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronUp, Flame } from 'lucide-react';
+import { ChevronDown, ChevronUp, Flame, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,6 +15,7 @@ import type { HuddleLogEntry } from '@/data/types';
 interface HuddleLogProps {
   logs: HuddleLogEntry[];
   onAdd: (entry: Omit<HuddleLogEntry, 'id'>) => void;
+  onDelete?: (entryId: string) => void;
   canEdit: boolean;
   currentUserName: string;
 }
@@ -22,6 +23,7 @@ interface HuddleLogProps {
 export function HuddleLog({
   logs,
   onAdd,
+  onDelete,
   canEdit,
   currentUserName,
 }: HuddleLogProps) {
@@ -213,26 +215,47 @@ export function HuddleLog({
           <div className="space-y-2">
             {sortedLogs.map((log) => (
               <div key={log.id} className="border rounded-lg bg-white overflow-hidden">
-                <button
-                  onClick={() =>
-                    setExpandedEntryId(expandedEntryId === log.id ? null : log.id)
-                  }
-                  className="w-full flex items-center justify-between p-3 hover:bg-gray-50 transition-colors"
-                >
-                  <div className="text-left space-y-1">
-                    <div className="font-medium text-gray-900">
-                      {formatDate(log.date)} - Week {log.week}
+                <div className="w-full flex items-center justify-between p-3 hover:bg-gray-50 transition-colors">
+                  <button
+                    onClick={() =>
+                      setExpandedEntryId(expandedEntryId === log.id ? null : log.id)
+                    }
+                    className="flex-1 flex items-center justify-between text-left"
+                  >
+                    <div className="space-y-1">
+                      <div className="font-medium text-gray-900">
+                        {formatDate(log.date)} - Week {log.week}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        Facilitated by {log.facilitator}
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-600">
-                      Facilitated by {log.facilitator}
-                    </div>
-                  </div>
-                  {expandedEntryId === log.id ? (
-                    <ChevronUp size={20} className="text-gray-600" />
-                  ) : (
-                    <ChevronDown size={20} className="text-gray-600" />
+                    {expandedEntryId === log.id ? (
+                      <ChevronUp size={20} className="text-gray-600 ml-2" />
+                    ) : (
+                      <ChevronDown size={20} className="text-gray-600 ml-2" />
+                    )}
+                  </button>
+                  {canEdit && onDelete && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (
+                          window.confirm(
+                            `Delete this huddle log (${formatDate(log.date)}, Week ${log.week})? This cannot be undone.`
+                          )
+                        ) {
+                          onDelete(log.id);
+                        }
+                      }}
+                      className="ml-2 p-2 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors"
+                      title="Delete this huddle log"
+                      aria-label="Delete this huddle log"
+                    >
+                      <Trash2 size={16} />
+                    </button>
                   )}
-                </button>
+                </div>
 
                 {expandedEntryId === log.id && (
                   <div className="border-t bg-gray-50 p-3 space-y-3 text-sm">

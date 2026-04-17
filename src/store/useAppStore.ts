@@ -95,6 +95,7 @@ interface AppStore extends AppState {
   toggleSupplyOrdered(stageId: string, itemId: string): void;
   updateSupplyQuantity(stageId: string, itemId: string, qty: number): void;
   addHuddleLog(stageId: string, entry: Omit<HuddleLogEntry, 'id'>): void;
+  deleteHuddleLog(stageId: string, entryId: string): void;
   addRedTag(stageId: string, tag: Omit<RedTagItem, 'id'>): void;
   disposeRedTag(
     stageId: string,
@@ -470,6 +471,19 @@ export const useAppStore = create<AppStore>()(
             return { ...stage, huddleLogs };
           });
 
+          return { stages };
+        });
+      },
+
+      deleteHuddleLog: (stageId: string, entryId: string) => {
+        set((state) => {
+          const stages = state.stages.map((stage) => {
+            if (stage.id !== stageId) return stage;
+            const huddleLogs = (stage.huddleLogs ?? []).filter(
+              (log) => log.id !== entryId
+            );
+            return { ...stage, huddleLogs };
+          });
           return { stages };
         });
       },

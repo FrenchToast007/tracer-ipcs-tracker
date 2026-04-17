@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowDown } from 'lucide-react';
+import { scrollToAnchorWithRetry } from '@/lib/utils';
 
 interface SectionHeaderProps {
   stepNumber: number;
@@ -10,16 +11,6 @@ interface SectionHeaderProps {
   nextLabel?: string;
 }
 
-const scrollToAnchor = (anchor: string) => {
-  const el = document.getElementById(anchor);
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    el.classList.add('ring-4', 'ring-yellow-400');
-    setTimeout(() => {
-      el.classList.remove('ring-4', 'ring-yellow-400');
-    }, 2000);
-  }
-};
 
 export const SectionHeader: React.FC<SectionHeaderProps> = ({
   stepNumber,
@@ -61,16 +52,7 @@ export const NextStepLink: React.FC<NextStepLinkProps> = ({ nextAnchor, nextLabe
   return (
     <div className="mt-4 flex justify-end">
       <button
-        onClick={() => {
-          const el = document.getElementById(nextAnchor);
-          if (el) {
-            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            el.classList.add('ring-4', 'ring-yellow-400');
-            setTimeout(() => {
-              el.classList.remove('ring-4', 'ring-yellow-400');
-            }, 2000);
-          }
-        }}
+        onClick={() => scrollToAnchorWithRetry(nextAnchor)}
         className="flex items-center gap-2 text-sm font-semibold text-blue-700 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg border border-blue-200 transition-colors"
       >
         Next: {nextLabel}
