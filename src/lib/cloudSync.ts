@@ -1,5 +1,6 @@
 import { supabase, APP_STATE_ID } from './supabase';
-import useAppStore from '@/store/useAppStore';
+import useAppStore, { INITIAL_STAGES } from '@/store/useAppStore';
+import type { Stage } from '@/data/types';
 
 // ============================================================================
 // Cloud sync layer
@@ -31,6 +32,71 @@ function getSyncedSlice() {
   };
 }
 
+// ---------------------------------------------------------------------------
+// Stage self-healing
+//
+// The cloud row is a snapshot of the whole `stages` array. Once it is seeded
+// from the initial data, later code changes to stage content never reach
+// users because hydrate just overwrites local with cloud.
+//
+// To let new stage content (new activities, copy fixes, added weeks) flow to
+// production without hand-editing the Supabase row, we merge on hydrate:
+// if a cloud stage shows NO user progress (nothing done/in-progress/blocked,
+// no KPIs filled, no exit criteria met, not signed off), we replace that
+// stage with the local INITIAL_STAGES version. Stages with any user
+// activity are left exactly as they are in the cloud.
+// ---------------------------------------------------------------------------
+
+function hasAnyProgress(stage: Stage): boolean {
+  if (!stage) return false;
+  if (stage.signedOffAt) return true;
+  if (stage.status === 'complete') return true;
+  for (const week of stage.weeks ?? []) {
+    for (const a of week.activities ?? []) {
+      if (a.status && a.status !== 'pending') return true;
+      if (a.notes && a.notes.trim().length > 0) return true;
+      if (a.completedAt) return true;
+    }
+    if (week.reviewData?.submitted) return true;
+  }
+  for (const kpi of stage.kpis ?? []) {
+    const wv = kpi.weeklyValues ?? {};
+    if (Object.values(wv).some((v) => v !== undefined && v !== null)) return true;
+  }
+  for (const ec of stage.exitCriteria ?? []) {
+    if (ec.met) return true;
+    if (ec.notes && ec.notes.trim().length > 0) return true;
+  }
+  // Ancillary collections — if anyone has added photos, red tags, huddle
+  // logs, maintenance tags, supplies progress, etc., preserve cloud.
+  if ((stage.photos ?? []).length > 0) return true;
+  if ((stage.redTags ?? []).length > 0) return true;
+  if ((stage.maintenanceTags ?? []).length > 0) return true;
+  if ((stage.huddleLogs ?? []).length > 0) return true;
+  if ((stage.supplies ?? []).some((s) => s.ordered || s.acquired)) return true;
+  if ((stage.fiveSZones ?? []).some((z) => Object.keys(z.weeklyScores ?? {}).length > 0)) {
+    return true;
+  }
+  return false;
+}
+
+function mergeStagesWithInitial(cloudStages: Stage[] | undefined): Stage[] {
+  const cloudById = new Map<string, Stage>((cloudStages ?? []).map((s) => [s.id, s]));
+  const merged = INITIAL_STAGES.map((local) => {
+    const cloud = cloudById.get(local.id);
+    if (!cloud) return local;
+    return hasAnyProgress(cloud) ? cloud : local;
+  });
+  // Also carry forward any cloud-only stages we don't know about locally
+  // (defensive — shouldn't happen in practice).
+  for (const cloud of cloudStages ?? []) {
+    if (!merged.some((s) => s.id === cloud.id)) {
+      merged.push(cloud);
+    }
+  }
+  return merged;
+}
+
 export async function hydrateFromCloud(): Promise<{ ok: boolean; error?: string }> {
   try {
     const { data, error } = await supabase
@@ -56,17 +122,37 @@ export async function hydrateFromCloud(): Promise<{ ok: boolean; error?: string 
       return { ok: true };
     }
 
-    // Apply remote state to the store
+    // Apply remote state to the store, merging INITIAL_STAGES into any cloud
+    // stage that has no user progress yet (see mergeStagesWithInitial).
+    const mergedStages = mergeStagesWithInitial(data.data.stages);
     applyingRemote = true;
     try {
       useAppStore.setState((prev) => ({
         ...prev,
-        stages: data.data.stages ?? prev.stages,
+        stages: mergedStages,
         notes: data.data.notes ?? prev.notes,
       }));
       lastPushedSerialized = JSON.stringify(getSyncedSlice());
     } finally {
       applyingRemote = false;
+    }
+
+    // If the merge changed anything (new stage content flowed in), push the
+    // corrected state back so every other client converges on the new seed.
+    const cloudSerialized = JSON.stringify({
+      stages: data.data.stages ?? [],
+      notes: data.data.notes ?? [],
+    });
+    if (lastPushedSerialized !== cloudSerialized) {
+      const { data: userData } = await supabase.auth.getUser();
+      await supabase
+        .from('app_state')
+        .upsert({
+          id: APP_STATE_ID,
+          data: { stages: mergedStages, notes: data.data.notes ?? [] },
+          updated_at: new Date().toISOString(),
+          updated_by: userData?.user?.id ?? null,
+        });
     }
 
     return { ok: true };
