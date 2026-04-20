@@ -10,7 +10,7 @@ const stage1: Stage = {
     'Establish clear decision rights, operating rules, and a single source of truth for job information across Site, Design, and Plant. Standardize how projects are named, filed, versioned, and communicated so everyone can find the latest approved information without hunting through emails, Basecamp threads, or version-controlled documents. Stage 1 primarily implements Recommendation 4.5 (escalation ladder) and Recommendation 4.0 (guiding principles), and it establishes the governance foundation every subsequent stage depends on.',
   purpose:
     'Stop the CEO from being required for every decision. Publish the Tracer Execution Control Charter, RACI, priority tiers, escalation ladder, and a single Basecamp source of truth so the Plant Manager, Site PMs, and Design Lead can resolve the majority of daily conflicts without CEO involvement — and so the shop floor executes from one job identifier, one revision, and one approved packet.',
-  status: 'locked',
+  status: 'active',
   color: 'blue',
   completionPercent: 0,
   weeks: [
