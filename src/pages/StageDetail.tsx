@@ -13,6 +13,7 @@ import {
   TabsTrigger,
 } from '@/components/ui/tabs';
 import { Stage0GuidedFlow } from '@/components/stage0/Stage0GuidedFlow';
+import { Stage1GuidedFlow } from '@/components/stage1/Stage1GuidedFlow';
 import { KPITracker } from '@/components/KPITracker';
 import { ExitCriteria } from '@/components/ExitCriteria';
 import { FiveSScoring } from '@/components/FiveSScoring';
@@ -101,7 +102,13 @@ export function StageDetail() {
     return <Stage0GuidedFlow stageId={stage.id} />;
   }
 
-  // Stages 1-7 - Tabbed Layout
+  // Stage 1 - Guided Flow (mirrors Stage 0's click-to-expand pattern,
+  // without the 5S-specific tool panels)
+  if (stage.id === 'stage1') {
+    return <Stage1GuidedFlow stageId={stage.id} />;
+  }
+
+  // Stages 2-7 - Tabbed Layout
   const selectedWeekData = stage.weeks.find((w) => w.number === selectedWeek);
 
   // Group activities by day

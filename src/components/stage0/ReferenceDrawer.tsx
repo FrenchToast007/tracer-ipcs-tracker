@@ -8,6 +8,18 @@ import {
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { SOPS, FINDINGS, RECOMMENDATIONS } from '@/data/stage0References';
+import {
+  STAGE1_SOPS,
+  STAGE1_FINDINGS,
+  STAGE1_RECOMMENDATIONS,
+} from '@/data/stage1References';
+
+// The reference drawer reads from every stage's reference map. Stage 0 and
+// Stage 1 already have authored references; later stages can register theirs
+// the same way.
+const ALL_SOPS = { ...SOPS, ...STAGE1_SOPS };
+const ALL_FINDINGS = { ...FINDINGS, ...STAGE1_FINDINGS };
+const ALL_RECOMMENDATIONS = { ...RECOMMENDATIONS, ...STAGE1_RECOMMENDATIONS };
 
 export interface ReferenceDrawerProps {
   isOpen: boolean;
@@ -39,8 +51,8 @@ export const ReferenceDrawer: React.FC<ReferenceDrawerProps> = ({
   let title = '';
   let content: React.ReactNode = null;
 
-  if (type === 'sop' && id && SOPS[id]) {
-    const sop = SOPS[id];
+  if (type === 'sop' && id && ALL_SOPS[id]) {
+    const sop = ALL_SOPS[id]!;
     title = sop.title;
     content = (
       <div className="space-y-6">
@@ -102,8 +114,8 @@ export const ReferenceDrawer: React.FC<ReferenceDrawerProps> = ({
         )}
       </div>
     );
-  } else if (type === 'finding' && id && FINDINGS[id]) {
-    const finding = FINDINGS[id];
+  } else if (type === 'finding' && id && ALL_FINDINGS[id]) {
+    const finding = ALL_FINDINGS[id]!;
     title = finding.title;
     content = (
       <div className="space-y-6">
@@ -139,8 +151,8 @@ export const ReferenceDrawer: React.FC<ReferenceDrawerProps> = ({
         </div>
       </div>
     );
-  } else if (type === 'rec' && id && RECOMMENDATIONS[id]) {
-    const rec = RECOMMENDATIONS[id];
+  } else if (type === 'rec' && id && ALL_RECOMMENDATIONS[id]) {
+    const rec = ALL_RECOMMENDATIONS[id]!;
     title = rec.title;
     content = (
       <div className="space-y-6">
