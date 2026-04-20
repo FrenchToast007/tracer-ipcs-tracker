@@ -99,9 +99,9 @@ export function Dashboard() {
   };
 
   const handleStageClick = (stageId: string) => {
-    if (stageId === 'stage0') {
-      navigate(`/stage/${stageId}`);
-    }
+    const target = stages.find((s) => s.id === stageId);
+    if (!target || target.status === 'locked') return;
+    navigate(`/stage/${stageId}`);
   };
 
   return (
