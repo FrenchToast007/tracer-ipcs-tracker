@@ -14,6 +14,8 @@ import {
 } from '@/components/ui/tabs';
 import { Stage0GuidedFlow } from '@/components/stage0/Stage0GuidedFlow';
 import { Stage1GuidedFlow } from '@/components/stage1/Stage1GuidedFlow';
+import { StageGuidedFlow } from '@/components/shared/StageGuidedFlow';
+import { STAGE_FLOW_CONFIGS } from '@/components/shared/stageFlowConfigs';
 import { KPITracker } from '@/components/KPITracker';
 import { ExitCriteria } from '@/components/ExitCriteria';
 import { FiveSScoring } from '@/components/FiveSScoring';
@@ -108,7 +110,13 @@ export function StageDetail() {
     return <Stage1GuidedFlow stageId={stage.id} />;
   }
 
-  // Stages 2-7 - Tabbed Layout
+  // Stages 2-7 - config-driven StageGuidedFlow
+  const extendedConfig = STAGE_FLOW_CONFIGS[stage.id];
+  if (extendedConfig) {
+    return <StageGuidedFlow stageId={stage.id} config={extendedConfig} />;
+  }
+
+  // Fallback - Tabbed Layout (should no longer be reached)
   const selectedWeekData = stage.weeks.find((w) => w.number === selectedWeek);
 
   // Group activities by day

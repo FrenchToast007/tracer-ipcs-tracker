@@ -320,6 +320,10 @@ export interface Stage {
   complianceRows?: ComplianceRow[];
   trainingRows?: TrainingRow[];
   findAJobEntries?: FindAJobEntry[];
+  // Generic multi-log bucket used by stages 2-7. Each key is a log identifier
+  // (e.g. 'constraint', 'ncr', 'field_adjustment') and the value is an array
+  // of free-form row objects shaped per the tool config.
+  stageLogs?: Record<string, Array<Record<string, any>>>;
   // Shared
   guidingPrinciples?: string[];
   roles?: RoleEntry[];

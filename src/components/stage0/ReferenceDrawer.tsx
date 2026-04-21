@@ -13,13 +13,20 @@ import {
   STAGE1_FINDINGS,
   STAGE1_RECOMMENDATIONS,
 } from '@/data/stage1References';
+import {
+  EXTENDED_SOPS,
+  EXTENDED_FINDINGS,
+  EXTENDED_RECS,
+} from '@/data/stagesExtendedReferences';
 
-// The reference drawer reads from every stage's reference map. Stage 0 and
-// Stage 1 already have authored references; later stages can register theirs
-// the same way.
-const ALL_SOPS = { ...SOPS, ...STAGE1_SOPS };
-const ALL_FINDINGS = { ...FINDINGS, ...STAGE1_FINDINGS };
-const ALL_RECOMMENDATIONS = { ...RECOMMENDATIONS, ...STAGE1_RECOMMENDATIONS };
+// The reference drawer reads from every stage's reference map.
+const ALL_SOPS = { ...SOPS, ...STAGE1_SOPS, ...EXTENDED_SOPS };
+const ALL_FINDINGS = { ...FINDINGS, ...STAGE1_FINDINGS, ...EXTENDED_FINDINGS };
+const ALL_RECOMMENDATIONS = {
+  ...RECOMMENDATIONS,
+  ...STAGE1_RECOMMENDATIONS,
+  ...EXTENDED_RECS,
+};
 
 export interface ReferenceDrawerProps {
   isOpen: boolean;
