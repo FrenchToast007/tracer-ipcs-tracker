@@ -21,10 +21,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const { currentUser, stages, logout } = useAppStore();
 
   const handleStageClick = (stageId: string) => {
-    if (stageId === 'stage0') {
-      navigate(`/stage/${stageId}`);
-      setMobileMenuOpen(false);
-    }
+    const target = stages.find((s: Stage) => s.id === stageId);
+    if (!target || target.status === 'locked') return;
+    navigate(`/stage/${stageId}`);
+    setMobileMenuOpen(false);
   };
 
   const handleLogout = async () => {
