@@ -208,6 +208,89 @@ export interface Note {
   createdAt: string;
 }
 
+// ----- Stage 1 tool/sheet types -----
+
+export type ArtifactStatus = 'not_started' | 'draft' | 'in_review' | 'signed' | 'posted';
+
+export interface GovernanceArtifact {
+  id: string;
+  name: string;          // e.g. "Tracer Execution Control Charter"
+  owner: string;         // role or person
+  status: ArtifactStatus;
+  version: string;       // e.g. "v0.1", "v1.0"
+  link?: string;         // optional URL (e.g. Basecamp link)
+  notes?: string;
+  updatedAt?: string;
+}
+
+export type RaciValue = '' | 'R' | 'A' | 'C' | 'I';
+
+export interface RaciRow {
+  id: string;
+  decision: string;              // e.g. "Release to Production"
+  values: Record<string, RaciValue>; // column key (role) -> R/A/C/I
+  notes?: string;
+}
+
+export type PriorityTier = 'P1' | 'P2' | 'P3';
+export type PriorityLogKind = 'priority_change' | 'escalation' | 'stop_the_line' | 'urgent_request';
+export type PriorityLogOutcome = 'resolved' | 'escalated' | 'rejected' | 'pending';
+
+export interface PriorityLogEntry {
+  id: string;
+  date: string;                  // ISO
+  kind: PriorityLogKind;
+  requester: string;
+  tier?: PriorityTier;
+  justification: string;
+  approver?: string;
+  outcome: PriorityLogOutcome;
+  resolutionTimeMinutes?: number;
+  notes?: string;
+}
+
+export interface CeoInterventionEntry {
+  id: string;
+  date: string;                  // ISO
+  override: string;              // short description of what was changed
+  rationale: string;
+  downstreamImpact: string;      // jobs shifted, commitments slipped, etc
+  followUpAction: string;
+  followUpOwner: string;
+}
+
+export interface ComplianceRow {
+  id: string;
+  projectName: string;
+  jobIdApplied: boolean;        // naming convention
+  mandatoryFields: boolean;     // owner/site contact/job type/delivery event/latest rev/open risks/approval state/priority tier
+  filedCorrectly: boolean;      // documents filed in standard folder structure
+  latestRevisionVisible: boolean;
+  notes?: string;
+  checkedAt?: string;
+}
+
+export interface TrainingRow {
+  id: string;
+  leadName: string;              // e.g. "Plant Manager — Abdel Benali"
+  sessionDate?: string;
+  liveJobUsed?: string;          // the real job used for the hands-on walkthrough
+  demonstratedLocate: boolean;   // can locate a live job record
+  demonstratedUpdate: boolean;   // can update a live job record
+  demonstratedEscalate: boolean; // can walk an escalation up the ladder
+  verifiedBy?: string;           // Consultant name
+  notes?: string;
+}
+
+export interface FindAJobEntry {
+  id: string;
+  participantName: string;
+  role?: string;
+  jobQueried?: string;
+  seconds?: number;              // how long it took them to find the plan
+  passed?: boolean;
+}
+
 export interface Stage {
   id: string;
   number: number;
@@ -228,6 +311,16 @@ export interface Stage {
   maintenanceTags?: MaintenanceTag[];
   huddleLogs?: HuddleLogEntry[];
   supplies?: SupplyItem[];
+  // Stage 1 tools / sheets
+  governanceArtifacts?: GovernanceArtifact[];
+  raciRows?: RaciRow[];
+  raciColumns?: string[];           // column headers for the RACI matrix (role names)
+  priorityLog?: PriorityLogEntry[];
+  ceoInterventionLog?: CeoInterventionEntry[];
+  complianceRows?: ComplianceRow[];
+  trainingRows?: TrainingRow[];
+  findAJobEntries?: FindAJobEntry[];
+  // Shared
   guidingPrinciples?: string[];
   roles?: RoleEntry[];
   risks?: RiskItem[];
