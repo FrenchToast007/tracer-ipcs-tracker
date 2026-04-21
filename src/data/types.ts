@@ -87,6 +87,11 @@ export interface KPI {
     week3?: number;
     week4?: number;
   };
+  // Site-aligned measurement fields (matching the Tracer SOP Library
+  // action-plan pages — each stage's Metrics & Measurement section).
+  baselineRationale?: string;  // e.g. "(estimated: most tools have no fixed location)"
+  targetWindow?: string;       // e.g. "90-DAY TARGET"; defaults to "Target"
+  howToMeasure?: string;       // exact measurement protocol
 }
 
 export interface ExitCriterion {
@@ -96,6 +101,7 @@ export interface ExitCriterion {
   notes?: string;
   evidenceRequired?: string;
   targetDate?: string;
+  verifiedBy?: string;  // Named verifier role from the site's stage pages
 }
 
 export interface PlantZone {
@@ -325,6 +331,7 @@ export interface Stage {
   // of free-form row objects shaped per the tool config.
   stageLogs?: Record<string, Array<Record<string, any>>>;
   // Shared
+  measurementContext?: string;    // Paragraph rendered above the KPI list
   guidingPrinciples?: string[];
   roles?: RoleEntry[];
   risks?: RiskItem[];

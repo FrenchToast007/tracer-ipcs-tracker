@@ -365,6 +365,115 @@ export const StageGuidedFlow: React.FC<Props> = ({ stageId, config }) => {
           </div>
         )}
 
+        {/* Metrics & Measurement */}
+        {activeTab === 'daily' && stage.kpis && stage.kpis.length > 0 && (
+          <div className="mb-10">
+            <h3 className="text-xl font-bold text-slate-900 mb-3">Metrics &amp; Measurement</h3>
+            {stage.measurementContext && (
+              <div className="mb-4 p-4 bg-slate-50 border border-slate-200 rounded text-sm text-slate-700 max-w-4xl">
+                <p className="font-semibold text-xs uppercase tracking-wide text-slate-600 mb-2">
+                  Measurement Context
+                </p>
+                <p>{stage.measurementContext}</p>
+              </div>
+            )}
+            <div className="space-y-4">
+              {stage.kpis.map((k) => (
+                <Card key={k.id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <p className="font-semibold text-slate-900">{k.name}</p>
+                        <p className="text-xs text-slate-500">
+                          {k.unit} · {k.higherIsBetter ? 'Higher is better' : 'Lower is better'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wide text-slate-600">
+                          Estimated Baseline
+                        </p>
+                        <p className="text-lg font-semibold text-slate-900 mt-0.5">
+                          {k.baseline}{' '}
+                          <span className="text-xs font-normal text-slate-500">{k.unit}</span>
+                        </p>
+                        {k.baselineRationale && (
+                          <p className="text-xs text-slate-600 mt-1 italic">
+                            {k.baselineRationale}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wide text-slate-600">
+                          {k.targetWindow || 'Target'}
+                        </p>
+                        <p className="text-lg font-semibold text-emerald-700 mt-0.5">
+                          {k.higherIsBetter ? '≥ ' : '≤ '}
+                          {k.target}{' '}
+                          <span className="text-xs font-normal text-slate-500">{k.unit}</span>
+                        </p>
+                      </div>
+                      {k.howToMeasure && (
+                        <div>
+                          <p className="text-xs font-bold uppercase tracking-wide text-slate-600">
+                            How to Measure
+                          </p>
+                          <p className="text-xs text-slate-700 mt-1">{k.howToMeasure}</p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Exit Criteria */}
+        {activeTab === 'daily' && stage.exitCriteria && stage.exitCriteria.length > 0 && (
+          <div className="mb-10">
+            <h3 className="text-xl font-bold text-slate-900 mb-3">Exit Criteria</h3>
+            <p className="text-sm text-slate-600 mb-4 max-w-4xl">
+              Gate conditions that must be met before advancing to the next stage.
+            </p>
+            <div className="space-y-3">
+              {stage.exitCriteria.map((e) => (
+                <Card key={e.id} className={e.met ? 'border-emerald-200 bg-emerald-50' : ''}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start gap-3">
+                      <div
+                        className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                          e.met
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-white border-2 border-slate-300 text-slate-400'
+                        }`}
+                      >
+                        {e.met ? '✓' : ''}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm text-slate-900">{e.description}</p>
+                        <div className="mt-2 flex flex-wrap gap-4 text-xs text-slate-600">
+                          {e.verifiedBy && (
+                            <span>
+                              <span className="font-semibold">Verified by:</span> {e.verifiedBy}
+                            </span>
+                          )}
+                          {e.evidenceRequired && (
+                            <span>
+                              <span className="font-semibold">Evidence:</span> {e.evidenceRequired}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Context blocks */}
         {activeTab === 'daily' && (
           <>
