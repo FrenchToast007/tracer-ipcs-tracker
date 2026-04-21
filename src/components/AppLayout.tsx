@@ -20,13 +20,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const [location, navigate] = useLocation();
   const { currentUser, stages, logout } = useAppStore();
 
-  const handleStageClick = (stageId: string) => {
-    const target = stages.find((s: Stage) => s.id === stageId);
-    if (!target || target.status === 'locked') return;
-    navigate(`/stage/${stageId}`);
-    setMobileMenuOpen(false);
-  };
-
   const handleLogout = async () => {
     // End the Supabase session first so AuthGate drops us back to the
     // login screen. Clear the local store regardless, in case signOut
@@ -182,35 +175,54 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {/* Stage List */}
       <ScrollArea className="flex-1 px-2">
         <div className="space-y-1">
-          {stages.map((stage: Stage) => (
-            <button
-              key={stage.id}
-              onClick={() => handleStageClick(stage.id)}
-              className={`w-full flex items-start gap-2 p-3 rounded-lg transition-colors text-left ${
-                stage.status === 'locked'
-                  ? 'cursor-not-allowed opacity-60 text-slate-400'
-                  : 'cursor-pointer hover:bg-slate-100 text-slate-700'
-              }`}
-              disabled={stage.status === 'locked'}
-            >
-              {/* Stage Number Badge */}
-              <div className="flex-shrink-0 w-6 h-6 bg-slate-900 text-white rounded-full flex items-center justify-center text-xs font-bold mt-0.5">
-                {stage.number}
-              </div>
-
-              {/* Stage Info */}
-              {sidebarExpanded && (
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">
-                    {stage.title}
-                  </p>
-                  <p className="text-xs text-slate-600 truncate">
-                    {getStageTruncatedSubtitle(stage.subtitle)}
-                  </p>
+          {stages.map((stage: Stage) => {
+            const locked = stage.status === 'locked';
+            const content = (
+              <>
+                {/* Stage Number Badge */}
+                <div className="flex-shrink-0 w-6 h-6 bg-slate-900 text-white rounded-full flex items-center justify-center text-xs font-bold mt-0.5">
+                  {stage.number}
                 </div>
-              )}
-            </button>
-          ))}
+
+                {/* Stage Info */}
+                {sidebarExpanded && (
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">
+                      {stage.title}
+                    </p>
+                    <p className="text-xs text-slate-600 truncate">
+                      {getStageTruncatedSubtitle(stage.subtitle)}
+                    </p>
+                  </div>
+                )}
+              </>
+            );
+
+            // Locked stages render as a plain disabled button (no navigation).
+            // Unlocked stages render as wouter Link-wrapped anchors, matching
+            // the Dashboard link pattern that is known to work reliably.
+            if (locked) {
+              return (
+                <button
+                  key={stage.id}
+                  className="w-full flex items-start gap-2 p-3 rounded-lg text-left cursor-not-allowed opacity-60 text-slate-400"
+                  disabled
+                >
+                  {content}
+                </button>
+              );
+            }
+            return (
+              <Link key={stage.id} href={`/stage/${stage.id}`}>
+                <a
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full flex items-start gap-2 p-3 rounded-lg transition-colors text-left cursor-pointer hover:bg-slate-100 text-slate-700 no-underline"
+                >
+                  {content}
+                </a>
+              </Link>
+            );
+          })}
         </div>
       </ScrollArea>
 
