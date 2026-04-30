@@ -287,33 +287,35 @@ export const Stage1GuidedFlow: React.FC<Stage1GuidedFlowProps> = ({
 
   return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-7xl mx-auto p-6">
-        <Button variant="ghost" onClick={() => navigate('/')} className="mb-6 gap-2">
+      <div className="max-w-7xl mx-auto p-3 sm:p-4 md:p-6">
+        <Button variant="ghost" onClick={() => navigate('/')} className="mb-4 md:mb-6 gap-2">
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
         </Button>
 
         {/* Page header */}
-        <div className="mb-8 pb-6 border-b border-slate-200">
-          <h1 className="text-4xl font-bold text-slate-900">{stage.title}</h1>
-          {stage.subtitle && <p className="text-slate-600 mt-2">{stage.subtitle}</p>}
+        <div className="mb-6 md:mb-8 pb-4 md:pb-6 border-b border-slate-200">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
+            {stage.title}
+          </h1>
+          {stage.subtitle && <p className="text-sm md:text-base text-slate-600 mt-2">{stage.subtitle}</p>}
           {stage.description && (
-            <p className="text-slate-700 mt-4 max-w-4xl">{stage.description}</p>
+            <p className="text-sm md:text-base text-slate-700 mt-3 md:mt-4 max-w-4xl">{stage.description}</p>
           )}
-          <div className="flex gap-8 mt-6">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-slate-900">{completionPercent}%</p>
-              <p className="text-sm text-slate-600">Progress</p>
+          <div className="flex flex-wrap gap-4 sm:gap-6 md:gap-8 mt-4 md:mt-6">
+            <div>
+              <p className="text-xl md:text-2xl font-bold text-slate-900">{completionPercent}%</p>
+              <p className="text-xs md:text-sm text-slate-600">Progress</p>
             </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-slate-900">
+            <div>
+              <p className="text-xl md:text-2xl font-bold text-slate-900">
                 {completedActivities}/{totalActivities}
               </p>
-              <p className="text-sm text-slate-600">Tasks</p>
+              <p className="text-xs md:text-sm text-slate-600">Tasks</p>
             </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-slate-900">{stage.weeks.length}</p>
-              <p className="text-sm text-slate-600">Weeks</p>
+            <div>
+              <p className="text-xl md:text-2xl font-bold text-slate-900">{stage.weeks.length}</p>
+              <p className="text-xs md:text-sm text-slate-600">Weeks</p>
             </div>
           </div>
         </div>

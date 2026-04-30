@@ -105,50 +105,52 @@ export function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-white p-6">
+    <div className="min-h-screen bg-white p-3 sm:p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900">IPCS Dashboard</h1>
-          <p className="text-slate-600 mt-2">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 leading-tight">
+            IPCS Dashboard
+          </h1>
+          <p className="text-sm md:text-base text-slate-600 mt-2">
             Welcome back, {currentUser?.name} · Live team view
           </p>
         </div>
 
         {/* Top Right Badge */}
-        <div className="flex justify-end mb-6">
+        <div className="flex justify-end mb-4 md:mb-6">
           <Badge variant="outline">Overall: {overallProgress}% complete</Badge>
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
           {/* Stages Complete */}
           <Card>
-            <CardContent className="p-6">
-              <p className="text-3xl font-bold text-slate-900 mb-2">
+            <CardContent className="p-4 md:p-6">
+              <p className="text-2xl md:text-3xl font-bold text-slate-900 mb-1 md:mb-2">
                 {stagesComplete}/8
               </p>
-              <p className="text-sm text-slate-600">Stages Complete</p>
+              <p className="text-xs md:text-sm text-slate-600">Stages Complete</p>
             </CardContent>
           </Card>
 
           {/* Stages In Progress */}
           <Card>
-            <CardContent className="p-6">
-              <p className="text-3xl font-bold text-slate-900 mb-2">
+            <CardContent className="p-4 md:p-6">
+              <p className="text-2xl md:text-3xl font-bold text-slate-900 mb-1 md:mb-2">
                 {stagesInProgress}
               </p>
-              <p className="text-sm text-slate-600">Stages In Progress</p>
+              <p className="text-xs md:text-sm text-slate-600">Stages In Progress</p>
             </CardContent>
           </Card>
 
           {/* Activities Completed */}
           <Card>
-            <CardContent className="p-6">
-              <p className="text-3xl font-bold text-slate-900 mb-2">
+            <CardContent className="p-4 md:p-6">
+              <p className="text-2xl md:text-3xl font-bold text-slate-900 mb-1 md:mb-2">
                 {activitiesCompleted}
               </p>
-              <p className="text-sm text-slate-600">
+              <p className="text-xs md:text-sm text-slate-600">
                 Activities Completed
                 <br />
                 of {totalActivities} total
@@ -158,21 +160,21 @@ export function Dashboard() {
 
           {/* Overall Progress */}
           <Card>
-            <CardContent className="p-6">
-              <p className="text-3xl font-bold text-slate-900 mb-2">
+            <CardContent className="p-4 md:p-6">
+              <p className="text-2xl md:text-3xl font-bold text-slate-900 mb-1 md:mb-2">
                 {overallProgress}%
               </p>
-              <p className="text-sm text-slate-600">Overall Progress</p>
+              <p className="text-xs md:text-sm text-slate-600">Overall Progress</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Implementation Stages */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-slate-900 mb-6">
+        <div className="mb-6 md:mb-8">
+          <h2 className="text-xl md:text-2xl font-bold text-slate-900 mb-4 md:mb-6">
             Implementation Stages
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
             {stages.map((stage) => (
               <button
                 key={stage.id}
@@ -185,8 +187,8 @@ export function Dashboard() {
                 }`}
               >
                 <Card className={stage.status !== 'locked' ? 'hover:border-slate-300' : ''}>
-                  <CardContent className="p-6">
-                    <div className="flex gap-4">
+                  <CardContent className="p-4 md:p-6">
+                    <div className="flex gap-3 md:gap-4">
                       {/* Stage Number Badge */}
                       <div className="flex-shrink-0">
                         <div className="w-12 h-12 bg-slate-900 text-white rounded-lg flex items-center justify-center text-xl font-bold">

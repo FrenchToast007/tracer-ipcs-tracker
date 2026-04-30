@@ -290,22 +290,32 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Top Bar */}
-        <div className="h-16 border-b border-slate-200 flex items-center px-4 gap-4 bg-white">
+        <div className="h-14 md:h-16 border-b border-slate-200 flex items-center px-3 md:px-4 gap-3 bg-white shrink-0">
           {/* Mobile Menu Button */}
           <button
-            className="md:hidden p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            className="md:hidden p-2 -ml-1 hover:bg-slate-100 rounded-lg transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Open menu"
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="w-6 h-6" />
           </button>
+
+          {/* Mobile brand */}
+          <div className="md:hidden flex items-center gap-2 min-w-0">
+            <div className="w-7 h-7 rounded-md bg-slate-900 text-white flex items-center justify-center font-bold text-xs shrink-0">
+              IP
+            </div>
+            <span className="font-bold text-sm text-slate-900 truncate">IPCS Tracker</span>
+          </div>
 
           {/* Desktop Sidebar Toggle */}
           {!sidebarExpanded && (
             <button
               className="hidden md:flex p-2 hover:bg-slate-100 rounded-lg transition-colors"
               onClick={() => setSidebarExpanded(!sidebarExpanded)}
+              aria-label="Expand sidebar"
             >
               <ChevronRight className="w-5 h-5" />
             </button>
